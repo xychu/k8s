@@ -5,9 +5,9 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	restclientset "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
@@ -32,21 +32,18 @@ var (
 )
 
 func NewUnstructuredTFJobInformer(restConfig *restclientset.Config, namespace string) tfjobinformersv1beta1.TFJobInformer {
-	dynClientPool := dynamic.NewDynamicClientPool(restConfig)
-	dclient, err := dynClientPool.ClientForGroupVersionKind(tfv1beta1.SchemeGroupVersionKind)
+	dynClient, err := dynamic.NewForConfig(restConfig)
 	if err != nil {
 		panic(err)
 	}
-	resource := &metav1.APIResource{
-		Name:         tfv1beta1.Plural,
-		SingularName: tfv1beta1.Singular,
-		Namespaced:   true,
-		Group:        tfv1beta1.GroupName,
-		Version:      tfv1beta1.GroupVersion,
+	resource := schema.GroupVersionResource{
+		Group:    tfv1beta1.GroupName,
+		Version:  tfv1beta1.GroupVersion,
+		Resource: tfv1beta1.Plural,
 	}
 	informer := unstructured.NewTFJobInformer(
 		resource,
-		dclient,
+		dynClient,
 		namespace,
 		resyncPeriod,
 		cache.Indexers{},
