@@ -16,6 +16,7 @@
 package tensorflow
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -169,7 +170,7 @@ func NewTFController(
 // as syncing informer caches and starting workers. It will block until stopCh
 // is closed, at which point it will shutdown the workqueue and wait for
 // workers to finish processing their current work items.
-func (tc *TFController) Run(threadiness int, stopCh <-chan struct{}) error {
+func (tc *TFController) Run(threadiness int, ctx context.Context) error {
 	defer utilruntime.HandleCrash()
 	defer tc.WorkQueue.ShutDown()
 
@@ -179,18 +180,18 @@ func (tc *TFController) Run(threadiness int, stopCh <-chan struct{}) error {
 	// Wait for the caches to be synced before starting workers.
 	log.Info("Waiting for informer caches to sync")
 
-	if ok := cache.WaitForCacheSync(stopCh, tc.tfJobInformerSynced,
+	if ok := cache.WaitForCacheSync(ctx.Done(), tc.tfJobInformerSynced,
 		tc.PodInformerSynced, tc.ServiceInformerSynced); !ok {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}
 	log.Infof("Starting %v workers", threadiness)
 	// Launch workers to process TFJob resources.
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(tc.runWorker, time.Second, stopCh)
+		go wait.Until(tc.runWorker, time.Second, ctx.Done())
 	}
 
 	log.Info("Started workers")
-	<-stopCh
+	<-ctx.Done()
 	log.Info("Shutting down workers")
 
 	return nil
