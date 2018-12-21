@@ -23,7 +23,8 @@ import (
 var (
 	// TODO: move SchemeBuilder with zz_generated.deepcopy.go to k8s.io/api.
 	// localSchemeBuilder and AddToScheme will stay in k8s.io/kubernetes.
-	SchemeBuilder      runtime.SchemeBuilder
+	//SchemeBuilder      runtime.SchemeBuilder
+	SchemeBuilder      = runtime.NewSchemeBuilder(addKnownTypes)
 	localSchemeBuilder = &SchemeBuilder
 	AddToScheme        = localSchemeBuilder.AddToScheme
 )
