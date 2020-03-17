@@ -1,7 +1,8 @@
 language: go
 
 go:
-  - "1.12"
+  - "1.13"
+  - "1.14"
 
 go_import_path: github.com/kubeflow/tf-operator
 
@@ -13,6 +14,7 @@ install:
 
 script:
   - hack/verify-codegen.sh
+  - export GO111MODULE=on
   - go build -o tf-operator.v1 github.com/kubeflow/tf-operator/cmd/tf-operator.v1
   - golangci-lint run ./...
   # We customize the build step because by default
