@@ -23,8 +23,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/client-go/tools/cache"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/cache"
 )
 
 const (
@@ -74,8 +74,8 @@ func ConvertTFJobToUnstructured(tfJob *tfv1.TFJob) (*unstructured.Unstructured, 
 		return nil, err
 	}
 	return &unstructured.Unstructured{
-		Object:object,
-	},nil
+		Object: object,
+	}, nil
 }
 
 func GetKey(tfJob *tfv1.TFJob, t *testing.T) string {
